@@ -453,6 +453,7 @@ export default function App() {
   const [search, setSearch] = useState("");
   const [collapsedGroups, setCollapsedGroups] = useState({});
   const [selected, setSelected] = useState([]); // [{id, regIdx}]
+  const [resultMinimized, setResultMinimized] = useState(false);
 
   const wt = parseFloat(weight) || 0;
   const ht = parseFloat(height) || 0;
@@ -495,9 +496,9 @@ export default function App() {
   const cnt = selected.length;
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-800 font-sans">
-      {/* ───── Sticky 病人資料 (always visible) ───── */}
-      <div className="sticky top-0 z-30 bg-slate-100/95 backdrop-blur border-b border-slate-200 px-3 py-2">
+    <div className="h-screen flex flex-col bg-slate-100 text-slate-800 font-sans overflow-hidden">
+      {/* ───── 上段 1：病人資料（固定） ───── */}
+      <div className="shrink-0 bg-slate-100 border-b border-slate-200 px-3 py-2">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between gap-2 mb-1.5">
             <h1 className="text-base font-bold tracking-tight text-slate-900">兒癌病房 抗感染計算機</h1>
@@ -542,41 +543,62 @@ export default function App() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-3 pb-6">
-        {/* ───── 結果區 (selected drugs) ───── */}
-        <div className="py-3">
-          {cnt === 0 && (
-            <div className="bg-white rounded-xl border-2 border-dashed border-slate-300 px-4 py-6 text-center">
-              <div className="text-slate-400 text-sm">點下方藥物即可顯示劑量</div>
-              <div className="text-slate-300 text-xs mt-1">最多同時比較 {MAX_COMPARE} 支</div>
-            </div>
-          )}
-          {cnt > 0 && (
-            <>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
-                  劑量結果（{cnt}/{MAX_COMPARE}）
-                </span>
-                <button onClick={clearAll} className="text-[10px] text-slate-500 hover:text-rose-600 underline-offset-2 hover:underline">
-                  清空
-                </button>
+      {/* ───── 上段 2：結果區（固定，內部可滾動） ───── */}
+      {(cnt > 0 || true) && (
+        <div className={`shrink-0 bg-slate-100 border-b border-slate-200 px-3 ${cnt === 0 ? "py-2" : "pt-2 pb-3"}`}>
+          <div className="max-w-4xl mx-auto">
+            {cnt === 0 ? (
+              <div className="bg-white/70 rounded-lg border border-dashed border-slate-300 px-3 py-2 text-center">
+                <span className="text-slate-400 text-xs">↓ 點下方藥物開始計算（最多 {MAX_COMPARE} 支同時比較）</span>
               </div>
-              <div className={`grid gap-2 ${cnt === 1 ? "grid-cols-1" : cnt === 2 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"}`}>
-                {selected.map((s) => {
-                  const drug = DRUGS.find((d) => d.id === s.id);
-                  if (!drug) return null;
-                  const regs = drug.regimens.filter((r) => r.intent === intent);
-                  return (
-                    <ResultCard key={s.id} drug={drug} regIdx={s.regIdx} setRegIdx={(i) => setRegIdxFor(s.id, i)}
-                      regimens={regs} wt={wt} bsa={bsa} isProph={isProph} onRemove={() => removeDrug(s.id)} isSingle={cnt === 1} />
-                  );
-                })}
-              </div>
-            </>
-          )}
+            ) : (
+              <>
+                <div className="flex items-center justify-between mb-1.5">
+                  <button onClick={() => setResultMinimized((v) => !v)} className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-slate-500 font-semibold hover:text-slate-700">
+                    <I.chev className={`w-3 h-3 transition ${resultMinimized ? "-rotate-90" : ""}`} />
+                    劑量結果 {cnt}/{MAX_COMPARE}
+                  </button>
+                  <button onClick={clearAll} className="text-[10px] text-slate-500 hover:text-rose-600 underline-offset-2 hover:underline">清空</button>
+                </div>
+                {!resultMinimized && (
+                  <div className={`grid gap-2 max-h-[50vh] overflow-y-auto ${cnt === 1 ? "grid-cols-1" : cnt === 2 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"}`}>
+                    {selected.map((s) => {
+                      const drug = DRUGS.find((d) => d.id === s.id);
+                      if (!drug) return null;
+                      const regs = drug.regimens.filter((r) => r.intent === intent);
+                      return (
+                        <ResultCard key={s.id} drug={drug} regIdx={s.regIdx} setRegIdx={(i) => setRegIdxFor(s.id, i)}
+                          regimens={regs} wt={wt} bsa={bsa} isProph={isProph} onRemove={() => removeDrug(s.id)} isSingle={cnt === 1} />
+                      );
+                    })}
+                  </div>
+                )}
+                {resultMinimized && (
+                  <div className="flex flex-wrap gap-1">
+                    {selected.map((s) => {
+                      const drug = DRUGS.find((d) => d.id === s.id);
+                      if (!drug) return null;
+                      const regs = drug.regimens.filter((r) => r.intent === intent);
+                      const reg = regs[s.regIdx] || regs[0];
+                      const res = reg && wt && (reg.basis !== "bsa" || bsa) ? compute(reg, wt, bsa) : null;
+                      return (
+                        <span key={s.id} className={`text-[11px] px-2 py-1 rounded ${isProph ? "bg-emerald-100 text-emerald-800" : "bg-sky-100 text-sky-800"}`}>
+                          {drug.short || drug.name}: <b>{res ? `${rngShort(res.doseMin, res.doseMax, reg.mcg)} ${reg.freq}` : "—"}</b>
+                          <button onClick={() => removeDrug(s.id)} className="ml-1 hover:opacity-70"><I.x className="w-2.5 h-2.5 inline" /></button>
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
+      )}
 
-        {/* ───── 藥物選擇區 ───── */}
+      {/* ───── 下段：藥物選擇區（獨立滾動） ───── */}
+      <div className="flex-1 overflow-y-auto px-3 pt-3 pb-6">
+        <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-xl border border-slate-200 p-3">
           {/* Search */}
           <div className="relative mb-3">
@@ -634,6 +656,7 @@ export default function App() {
         <p className="text-[10px] text-slate-400 mt-4 leading-relaxed text-center">
           決策輔助工具，不取代臨床判斷與處方查證；所有劑量請與主治確認後開立。腎/肝功能調整尚未納入。
         </p>
+        </div>
       </div>
     </div>
   );
