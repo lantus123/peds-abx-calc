@@ -91,10 +91,10 @@ const DRUGS = [
     { intent: "treatment", label: "Adult", basis: "fixed", mode: "perDose", value: [1000, 2000], unit: "mg/dose", freq: "Q12H", doses: 2, max: { per: "day", mg: 4000 } },
   ]},
   // ── Carbapenem ──
-  { id: "imipenem", name: "Imipenem/Cilastatin", short: "Imipenem", group: "Carbapenem", cls: "Carbapenem", ref: "2", regimens: [
+  { id: "imipenem", name: "Tienam (Imipenem/Cilastatin)", short: "Tienam", group: "Carbapenem", cls: "Carbapenem", ref: "2", regimens: [
     { intent: "treatment", label: "Standard", basis: "weight", mode: "perDay", value: [60, 100], unit: "mg/kg/day", freq: "div Q6H", doses: 4, max: { per: "day", mg: 4000 }, note: "以 Imipenem 計；IV drip 30 分" },
   ]},
-  { id: "meropenem", name: "Meropenem", group: "Carbapenem", cls: "Carbapenem", ref: "2", regimens: [
+  { id: "meropenem", name: "Mepem (Meropenem)", short: "Mepem", group: "Carbapenem", cls: "Carbapenem", ref: "2", regimens: [
     { intent: "treatment", label: "Standard", basis: "weight", mode: "perDose", value: 40, unit: "mg/kg/dose", freq: "Q8H", doses: 3, max: { per: "dose", mg: 2000 }, note: "IV drip 30 分" },
   ]},
   { id: "ertapenem", name: "Ertapenem", group: "Carbapenem", cls: "Carbapenem", ref: "2", regimens: [
@@ -107,7 +107,7 @@ const DRUGS = [
     { intent: "treatment", label: "Severe", basis: "weight", mode: "perDay", value: [45, 60], unit: "mg/kg/day", freq: "Q6–8H", doses: [3, 4], max: { per: "day", mg: 4000 }, note: "IV drip ≥1 hr" },
     { intent: "prophylaxis", label: "FN 預防", basis: "bsa", mode: "perDose", value: 400, unit: "mg/m²/dose", freq: "Q12H", doses: 2 },
   ]},
-  { id: "teicoplanin", name: "Teicoplanin", group: "Glycopeptide", cls: "Glycopeptide", ref: "2,6", regimens: [
+  { id: "teicoplanin", name: "Targocid (Teicoplanin)", short: "Targocid", group: "Glycopeptide", cls: "Glycopeptide", ref: "2,6", regimens: [
     { intent: "treatment", label: "Standard", basis: "weight", mode: "perDose", value: 10, unit: "mg/kg/dose", freq: "QD (維持)", doses: 1, loading: { value: 10, unit: "mg/kg/dose Q12H ×3" }, max: { per: "dose", mg: 600 }, note: ">60 kg 用 600 mg" },
   ]},
   // ── Aminoglycoside ──
