@@ -294,10 +294,18 @@ function compute(reg, wt, bsa) {
   if (reg.max?.per === "dose" && doseMax != null) {
     if (doseMax > reg.max.mg) { cappedDose = true; }
     doseMin = Math.min(doseMin, reg.max.mg); doseMax = Math.min(doseMax, reg.max.mg);
+    // 封頂後重算每日總量（dose × 頻次）
+    if (cappedDose && d) {
+      dayMin = doseMin * d[0]; dayMax = doseMax * d[1];
+    }
   }
   if (reg.max?.per === "day" && dayMax != null) {
     if (dayMax > reg.max.mg) { cappedDay = true; }
     dayMin = Math.min(dayMin, reg.max.mg); dayMax = Math.min(dayMax, reg.max.mg);
+    // 封頂後重算每劑（day ÷ 頻次）
+    if (cappedDay && d) {
+      doseMin = dayMin / d[1]; doseMax = dayMax / d[0];
+    }
   }
   let loading = null;
   if (reg.loading) {
