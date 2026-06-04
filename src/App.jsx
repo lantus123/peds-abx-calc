@@ -78,7 +78,7 @@ const DRUGS = [
     { intent: "treatment", label: "Severe", basis: "weight", mode: "perDay", value: 100, unit: "mg/kg/day", freq: "Q12–24H", doses: [1, 2], max: { per: "day", mg: 4000 }, note: "meningitis / severe immunocompromised" },
   ]},
   { id: "brosym", name: "Brosym (Cefoperazone/Sulbactam)", short: "Brosym", group: "Cephalosporin", cls: "3rd gen", ref: "2", regimens: [
-    { intent: "treatment", label: "Child", basis: "weight", mode: "perDay", value: [20, 40], unit: "mg/kg/day", freq: "2–4 dose", doses: [2, 4], note: "以 Cefoperazone 計，1 vial = 1000 mg" },
+    { intent: "treatment", label: "Child", basis: "weight", mode: "perDay", value: [20, 40], unit: "mg/kg/day", freq: "Q6–12H", doses: [2, 4], note: "以 Cefoperazone 計，1 vial = 1000 mg；每日分 2-4 次" },
     { intent: "treatment", label: "Adult", basis: "fixed", mode: "perDose", value: [500, 1000], unit: "mg/dose", freq: "Q12H", doses: 2, note: "以 Cefoperazone 計" },
   ]},
   { id: "cefepime", name: "Cefepime", group: "Cephalosporin", cls: "4th gen", ref: "2", regimens: [
@@ -165,7 +165,7 @@ const DRUGS = [
   { id: "colistin", name: "Colistin", group: "Quinolone / Sulfa / Polymyxin", cls: "Polymyxin", ref: "2,3", regimens: [
     { intent: "treatment", label: "General", basis: "weight", mode: "perDay", value: [2.5, 5], unit: "mg/kg/day", freq: "Q6–12H", doses: [2, 4], max: { per: "dose", mg: 100 }, warn: true, note: "⚠ 開 order 單位陷阱：電腦 mg 指 Colimycin，本表以 Colistin Base 計 → 建議用 vial 開立！" },
     { intent: "treatment", label: "Ped alt", basis: "weight", mode: "perDay", value: [4, 6], unit: "mg/kg/day", freq: "Q8H", doses: 3, max: { per: "dose", mg: 100 }, warn: true, note: "⚠ 以 Colistin Base 計" },
-    { intent: "treatment", label: "Adult alt", basis: "weight", mode: "perDay", value: [2.5, 5], unit: "mg/kg/day", freq: "2–4 dose", doses: [2, 4], max: { per: "dose", mg: 150 }, warn: true, note: "⚠ 以 Colistin Base 計" },
+    { intent: "treatment", label: "Adult alt", basis: "weight", mode: "perDay", value: [2.5, 5], unit: "mg/kg/day", freq: "Q6–12H", doses: [2, 4], max: { per: "dose", mg: 150 }, warn: true, note: "⚠ 以 Colistin Base 計；每日分 2-4 次" },
   ]},
   // ── Antifungal ──
   { id: "caspofungin", name: "Caspofungin", short: "Caspo", group: "Antifungal", cls: "Echinocandin", ref: "2", regimens: [
@@ -394,10 +394,11 @@ function ResultCard({ drug, regIdx, setRegIdx, regimens, wt, bsa, isProph, onRem
           <>
             {/* MAIN DOSE — biggest, eye-catching */}
             <div className="text-center py-1">
+              <div className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold mb-0.5">每劑</div>
               <div className={`text-2xl font-bold font-mono ${res.cappedDose ? "text-amber-700" : "text-slate-900"}`}>
                 {rngShort(res.doseMin, res.doseMax, reg.mcg)}
               </div>
-              <div className="text-sm font-semibold text-slate-600 mt-0.5">{cleanFreq(reg.freq)} <span className="text-[10px] text-slate-400 font-normal">/ 劑</span></div>
+              <div className="text-sm font-semibold text-slate-600 mt-0.5">{cleanFreq(reg.freq)}</div>
               {res.cappedDose && <div className="text-[10px] text-amber-600 mt-0.5">⚠ 已封頂</div>}
             </div>
 
