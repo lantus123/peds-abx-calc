@@ -32,7 +32,7 @@ const MAX_COMPARE = 3;
 
 const DRUGS = [
   // ── Penicillin / BLI ──
-  { id: "piptazo", name: "Piperacillin/Tazobactam", short: "Piptazo", group: "Penicillin / BLI", cls: "Tazocin", ref: "2", regimens: [
+  { id: "piptazo", name: "Tazocin (Piperacillin/Tazobactam)", short: "Tazocin", group: "Penicillin / BLI", cls: "Piperacillin/Tazobactam", ref: "2", regimens: [
     { intent: "treatment", label: "本科", basis: "weight", mode: "perDay", value: 400, unit: "mg/kg/day", freq: "div Q6H", doses: 4, max: { per: "day", mg: 18000 }, note: "以 Piperacillin 計；Max 18 g 以 Tazocin 總量計" },
     { intent: "treatment", label: "<2 M/O", basis: "weight", mode: "perDose", value: 100, unit: "mg/kg/dose", freq: "Q6H", doses: 4 },
     { intent: "treatment", label: "2–9 M/O", basis: "weight", mode: "perDose", value: 80, unit: "mg/kg/dose", freq: "Q8H", doses: 3 },
