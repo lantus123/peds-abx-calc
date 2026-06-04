@@ -315,7 +315,7 @@ function compute(reg, wt, bsa) {
   if (reg.loading) {
     const lv = asRange(reg.loading.value);
     loading = reg.basis === "fixed"
-      ? `${asRange(reg.loading.value).join("–")} ${reg.loading.unit}`
+      ? `${rangeOrSingle(reg.loading.value)} ${reg.loading.unit}`
       : `${fmt(lv[0] * size, reg.mcg)}${lv[1] !== lv[0] ? "–" + fmt(lv[1] * size, reg.mcg) : ""}（${reg.loading.unit}）`;
   }
   return { doseMin, doseMax, dayMin, dayMax, cappedDose, cappedDay, loading, work, workCapped };
@@ -323,6 +323,12 @@ function compute(reg, wt, bsa) {
 
 // 把 "div Q6H" 改成 "Q6H" — 用於「每劑」context（已經是除過的數字）
 const cleanFreq = (f) => f ? f.replace(/^div\s+/i, "") : f;
+
+// 顯示原始值：單一值就顯示單值，範圍才顯示 a–b（避免「150–150」假範圍）
+const rangeOrSingle = (v) => {
+  const [a, b] = asRange(v);
+  return a === b ? `${a}` : `${a}–${b}`;
+};
 
 // 為複製到 HIS 製作純文字摘要
 function makeCopyText(drug, reg, res) {
@@ -450,7 +456,7 @@ function ResultCard({ drug, regIdx, setRegIdx, regimens, wt, bsa, isProph, onRem
               <div className="bg-slate-50 rounded px-2 py-1.5 space-y-1 text-[10px]">
                 <div>
                   <div className="text-slate-400 text-[9px] uppercase tracking-wider">手冊原文</div>
-                  <div className="font-mono text-slate-600">{reg.value != null ? asRange(reg.value).join("–") + " " : ""}{reg.unit} · {reg.freq}</div>
+                  <div className="font-mono text-slate-600">{reg.value != null ? rangeOrSingle(reg.value) + " " : ""}{reg.unit} · {reg.freq}</div>
                 </div>
                 <div className="border-t border-dashed border-slate-300 pt-1">
                   <div className="text-slate-400 text-[9px] uppercase tracking-wider">原計算</div>
