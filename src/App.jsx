@@ -290,21 +290,25 @@ function compute(reg, wt, bsa) {
     work = sizeTxt ? `${vTxt} × ${sizeTxt} = ${prng(doseMin, doseMax, reg.mcg)}/劑` : `固定 ${prng(doseMin, doseMax, reg.mcg)}/劑`;
     if (d && !(d[0] === 1 && d[1] === 1)) work += ` × ${dTxt} = ${prng(dayMin, dayMax, reg.mcg)}/day`;
   }
-  let cappedDose = false, cappedDay = false;
+  let cappedDose = false, cappedDay = false, workCapped = null;
   if (reg.max?.per === "dose" && doseMax != null) {
     if (doseMax > reg.max.mg) { cappedDose = true; }
     doseMin = Math.min(doseMin, reg.max.mg); doseMax = Math.min(doseMax, reg.max.mg);
-    // 封頂後重算每日總量（dose × 頻次）
     if (cappedDose && d) {
       dayMin = doseMin * d[0]; dayMax = doseMax * d[1];
+      workCapped = `封頂 ${fmt(reg.max.mg, reg.mcg)}/劑 × ${dTxt} = ${prng(dayMin, dayMax, reg.mcg)}/day`;
+    } else if (cappedDose) {
+      workCapped = `封頂 ${fmt(reg.max.mg, reg.mcg)}/劑`;
     }
   }
   if (reg.max?.per === "day" && dayMax != null) {
     if (dayMax > reg.max.mg) { cappedDay = true; }
     dayMin = Math.min(dayMin, reg.max.mg); dayMax = Math.min(dayMax, reg.max.mg);
-    // 封頂後重算每劑（day ÷ 頻次）
     if (cappedDay && d) {
       doseMin = dayMin / d[1]; doseMax = dayMax / d[0];
+      workCapped = `封頂 ${fmt(reg.max.mg, reg.mcg)}/day ÷ ${dTxt} = ${prng(doseMin, doseMax, reg.mcg)}/劑`;
+    } else if (cappedDay) {
+      workCapped = `封頂 ${fmt(reg.max.mg, reg.mcg)}/day`;
     }
   }
   let loading = null;
@@ -314,7 +318,7 @@ function compute(reg, wt, bsa) {
       ? `${asRange(reg.loading.value).join("–")} ${reg.loading.unit}`
       : `${fmt(lv[0] * size, reg.mcg)}${lv[1] !== lv[0] ? "–" + fmt(lv[1] * size, reg.mcg) : ""}（${reg.loading.unit}）`;
   }
-  return { doseMin, doseMax, dayMin, dayMax, cappedDose, cappedDay, loading, work };
+  return { doseMin, doseMax, dayMin, dayMax, cappedDose, cappedDay, loading, work, workCapped };
 }
 
 // 把 "div Q6H" 改成 "Q6H" — 用於「每劑」context（已經是除過的數字）
@@ -444,8 +448,20 @@ function ResultCard({ drug, regIdx, setRegIdx, regimens, wt, bsa, isProph, onRem
             </button>
             {showDetail && (
               <div className="bg-slate-50 rounded px-2 py-1.5 space-y-1 text-[10px]">
-                <div className="font-mono text-slate-600">{reg.value != null ? asRange(reg.value).join("–") + " " : ""}{reg.unit} · {reg.freq}</div>
-                <div className="font-mono text-slate-500 border-t border-dashed border-slate-300 pt-1">{res.work}</div>
+                <div>
+                  <div className="text-slate-400 text-[9px] uppercase tracking-wider">手冊原文</div>
+                  <div className="font-mono text-slate-600">{reg.value != null ? asRange(reg.value).join("–") + " " : ""}{reg.unit} · {reg.freq}</div>
+                </div>
+                <div className="border-t border-dashed border-slate-300 pt-1">
+                  <div className="text-slate-400 text-[9px] uppercase tracking-wider">原計算</div>
+                  <div className={`font-mono ${res.workCapped ? "text-slate-400 line-through" : "text-slate-500"}`}>{res.work}</div>
+                </div>
+                {res.workCapped && (
+                  <div className="border-t border-dashed border-amber-300 pt-1">
+                    <div className="text-amber-600 text-[9px] uppercase tracking-wider">⚠ 套用上限</div>
+                    <div className="font-mono text-amber-700 font-semibold">{res.workCapped}</div>
+                  </div>
+                )}
               </div>
             )}
           </>
