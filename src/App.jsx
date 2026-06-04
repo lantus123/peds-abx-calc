@@ -535,7 +535,7 @@ export default function App() {
       <div className="shrink-0 bg-slate-100 border-b border-slate-200 px-3 py-2">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between gap-2 mb-1.5">
-            <h1 className="text-base font-bold tracking-tight text-slate-900">兒癌病房 抗感染計算機</h1>
+            <h1 className="text-base font-bold tracking-tight text-slate-900">抗生素計算機</h1>
             <span className="text-[10px] text-slate-400 font-mono">{DRUGS.length} 支</span>
           </div>
           {/* Compact patient inputs in one row */}
