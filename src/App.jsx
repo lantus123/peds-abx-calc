@@ -317,11 +317,14 @@ function compute(reg, wt, bsa) {
   return { doseMin, doseMax, dayMin, dayMax, cappedDose, cappedDay, loading, work };
 }
 
+// 把 "div Q6H" 改成 "Q6H" — 用於「每劑」context（已經是除過的數字）
+const cleanFreq = (f) => f ? f.replace(/^div\s+/i, "") : f;
+
 // 為複製到 HIS 製作純文字摘要
 function makeCopyText(drug, reg, res) {
   if (!res) return drug.name;
   const dose = rngShort(res.doseMin, res.doseMax, reg.mcg);
-  let s = `${drug.name} ${dose} ${reg.freq}`;
+  let s = `${drug.name} ${dose} ${cleanFreq(reg.freq)}`;
   if (res.loading) s += ` (Loading ${res.loading})`;
   if (reg.note) s += ` // ${reg.note.replace(/⚠\s*/g, '')}`;
   return s;
@@ -394,7 +397,7 @@ function ResultCard({ drug, regIdx, setRegIdx, regimens, wt, bsa, isProph, onRem
               <div className={`text-2xl font-bold font-mono ${res.cappedDose ? "text-amber-700" : "text-slate-900"}`}>
                 {rngShort(res.doseMin, res.doseMax, reg.mcg)}
               </div>
-              <div className="text-sm font-semibold text-slate-600 mt-0.5">{reg.freq}</div>
+              <div className="text-sm font-semibold text-slate-600 mt-0.5">{cleanFreq(reg.freq)} <span className="text-[10px] text-slate-400 font-normal">/ 劑</span></div>
               {res.cappedDose && <div className="text-[10px] text-amber-600 mt-0.5">⚠ 已封頂</div>}
             </div>
 
@@ -591,7 +594,7 @@ export default function App() {
                       const res = reg && wt && (reg.basis !== "bsa" || bsa) ? compute(reg, wt, bsa) : null;
                       return (
                         <span key={s.id} className={`text-[11px] px-2 py-1 rounded ${isProph ? "bg-emerald-100 text-emerald-800" : "bg-sky-100 text-sky-800"}`}>
-                          {drug.short || drug.name}: <b>{res ? `${rngShort(res.doseMin, res.doseMax, reg.mcg)} ${reg.freq}` : "—"}</b>
+                          {drug.short || drug.name}: <b>{res ? `${rngShort(res.doseMin, res.doseMax, reg.mcg)} ${cleanFreq(reg.freq)}` : "—"}</b>
                           <button onClick={() => removeDrug(s.id)} className="ml-1 hover:opacity-70"><I.x className="w-2.5 h-2.5 inline" /></button>
                         </span>
                       );
